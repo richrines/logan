@@ -17,6 +17,22 @@ module Logan
         Logan::TodoList.new h.merge({ :project_id => @id })
       end
     end
+
+    def most_recent_standup_url
+      active_response = Logan::Client.get "/projects/#{@id}/topics.json"
+      lists_array = active_response.parsed_response.map do |h|
+        if h["title"] =~ /stand.?up/i
+          @url = h["topicable"]["url"]
+          break
+        end
+      end
+
+      @url
+    end
+
+    def most_recent_standup_messages
+      Logan::Client.get most_recent_standup_url
+    end
     
     # get completed todo lists for this project from Basecamp API
     # 
